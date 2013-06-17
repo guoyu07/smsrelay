@@ -1,0 +1,8 @@
+syntax: glob
+
+smsrelay
+smsrelay.log
+smsrelay.pid
+smsrelay.conf
+*.sublime*
+misc/misc

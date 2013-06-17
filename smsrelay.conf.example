@@ -1,0 +1,56 @@
+{
+	"Gateways": {
+		"monternet": {
+			"URL": "http://ws.montnets.com:9002/MWGate/wmgw.asmx/MongateCsSpSendSmsNew",
+			"BalanceURL": "http://ws.montnets.com:9002/MWGate/wmgw.asmx/MongateQueryBalance",
+			"ReceiveURL": "http://ws.montnets.com:9002/MWGate/wmgw.asmx/MongateCsGetSmsExEx",
+			"StatusURL": "http://ws.montnets.com:9002/MWGate/wmgw.asmx/MongateCsGetStatusReportExEx"
+		},
+		"emay": {
+			"URL": "http://sdk229ws.eucp.b2m.cn:8080/sdkproxy/sendsms.action",
+			"BalanceURL": "http://sdk229ws.eucp.b2m.cn:8080/sdkproxy/querybalance.action",
+			"ReceiveURL": "http://sdk229ws.eucp.b2m.cn:8080/sdkproxy/getmo.action",
+			"StatusURL": "http://sdk229ws.eucp.b2m.cn:8080/sdkproxy/getreport.action"
+		}
+	},
+	"Relays": {
+		"monternet": {
+			"Gateway": "monternet",
+			"Userid": "",
+			"Password": "",
+			"CallerNumberLength": 16,
+			"GetSMSInterval": 2,
+			"Throughput": 10
+		},
+		"monternet_promo": {
+			"Gateway": "monternet",
+			"Userid": "",
+			"Password": "",
+			"CallerNumberLength": 16,
+			"GetSMSInterval": 2,
+			"Throughput": 50
+		},		
+		"emay": {
+			"Gateway": "emay",
+			"Userid": "",
+			"Password": "",
+			"CallerNumberLength": 12,
+			"GetSMSInterval": 2,
+			"Throughput": 10
+		}
+	},
+	"Settings": {
+		"DefaultRelay": "monternet",
+		"SharedSecret": "mylonglongsecret",
+		"IncomingURL": "http://localhost:8090"
+	},
+	"Users": {
+		"testsms": {
+			"Key": "o321ifknfjqpuq0r9ja",
+			"Relay": "default",
+			"Extension": "",
+			"StartHour": 0,
+			"StopHour": 24
+		}
+	}
+}
