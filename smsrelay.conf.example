@@ -46,7 +46,7 @@
 	},
 	"Users": {
 		"testsms": {
-			"Key": "o321ifknfjqpuq0r9ja",
+			"Password": "o321ifknfjqpuq0r9ja",
 			"Relay": "default",
 			"Extension": "",
 			"StartHour": 0,

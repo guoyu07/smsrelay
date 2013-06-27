@@ -81,7 +81,7 @@ type RelayConfig struct {
 
 // User config data
 type UserConfig struct {
-	Key       string
+	Password  string
 	Relay     string
 	Extension string
 	StartHour int
@@ -174,7 +174,7 @@ func receive(relayName string) bool {
 			defer resp.Body.Close()
 
 			body, _ := ioutil.ReadAll(resp.Body)
-			dlog.Printf("%s\n", body)
+			// dlog.Printf("%s\n", body)
 
 			return relay.processReceiveResult(body)
 		}
@@ -276,25 +276,12 @@ func sendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check user
-	key := params.Get("key")
-	idx := strings.Index(key, "_")
-
-	from := ""
-
-	// If key is empty
-	if idx == -1 {
-		if key == "" {
-			from = "unknown"
-		}
-	} else {
-		from = key[:idx]
-	}
-
+	from := params.Get("user")
 	user, ok := config.Users[from]
+	password := params.Get("password")
 
-	// If the key is correct
-	// if from == "unknown" || (ok && user.Key == key) {
-	if ok && user.Key == key {
+	// If the password is correct
+	if ok && user.Password == password {
 		var relayName string
 		if user.Relay == "default" {
 			relayName = config.Settings.DefaultRelay
