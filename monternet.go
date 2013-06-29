@@ -15,14 +15,8 @@ import (
 
 type MontRelay Relay
 
-// Data received from Monternet
-type MontData string
-
 // Message received from Monternet
-type MontMessage struct {
-	message   string
-	relayName string
-}
+type MontMessage string
 
 // Incoming messages received from Monternet
 type MontIncoming struct {
@@ -32,30 +26,42 @@ type MontIncoming struct {
 func (m *MontMessage) genBody() string {
 	keys := []string{"gatewayName", "channel", "mobile", "content", "extData"}
 
-	reader := csv.NewReader(strings.NewReader(m.message))
+	reader := csv.NewReader(strings.NewReader(string(*m)))
 	record, err := reader.Read()
 	if err != nil && err != io.EOF {
 		dlog.Println("Error occurred when parsing MontMessage:", err)
 		return ""
-	} else if len(record) != 6 {
-		dlog.Println("Incomplete MontMessage:", len(record))
-		return ""
-	} else {
-		values := []string{
-			"monternet",
-			record[3][config.Relays[m.relayName].CallerNumberLength:],
-			record[2],
-			record[5],
-			""}
-		h := md5.New()
-		io.WriteString(h, Encode(keys, values))
-		io.WriteString(h, config.Settings.SharedSecret)
-		buffer := bytes.NewBufferString("")
-		fmt.Fprintf(buffer, "%x", h.Sum(nil))
-		keys = append(keys, "_sign")
-		values = append(values, buffer.String())
-		return Encode(keys, values)
 	}
+
+	length := len(record)
+	// var channel, mobile, content string
+
+	if length != 6 {
+		dlog.Printf("Failed to parse MontMessage: length: %d, msg: %s\n", length, m)
+		return ""
+	}
+
+	channel := ""
+	for _, number := range config.Gateways["monternet"].CallerNumbers {
+		if strings.HasPrefix(record[3], number) {
+			channel = strings.TrimPrefix(record[3], number)
+		}
+	}
+
+	values := []string{
+		"monternet",
+		channel,
+		record[2],
+		record[5],
+		""}
+	h := md5.New()
+	io.WriteString(h, Encode(keys, values))
+	io.WriteString(h, config.Settings.SharedSecret)
+	buffer := bytes.NewBufferString("")
+	fmt.Fprintf(buffer, "%x", h.Sum(nil))
+	keys = append(keys, "_sign")
+	values = append(values, buffer.String())
+	return Encode(keys, values)
 }
 
 // NB: Cannot use PostForm here because montnets webservice requires fixed ordering
@@ -85,7 +91,7 @@ func (relay MontRelay) processReceiveResult(body []byte) bool {
 	v := MontIncoming{}
 	err := xml.Unmarshal(body, &v)
 	if err != nil {
-		dlog.Printf("error parsing monternet incoming msg: %v", err)
+		dlog.Println("Failed to unmarshal monternet incoming msg:", err)
 		return false
 	}
 
@@ -93,6 +99,7 @@ func (relay MontRelay) processReceiveResult(body []byte) bool {
 
 	for _, msg := range v.Result {
 		incomingQueue <- &msg
+		dlog.Println("Mont received message:", msg)
 	}
 
 	return true

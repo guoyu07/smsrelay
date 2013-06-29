@@ -63,20 +63,20 @@ type Sms struct {
 
 // SMS API Gateway config data
 type GatewayConfig struct {
-	URL        string
-	BalanceURL string
-	ReceiveURL string
-	StatusURL  string
+	URL           string
+	BalanceURL    string
+	ReceiveURL    string
+	StatusURL     string
+	CallerNumbers []string
 }
 
 // Relay config data
 type RelayConfig struct {
-	Gateway            string
-	Userid             string
-	Password           string
-	Throughput         int
-	GetSMSInterval     int
-	CallerNumberLength int
+	Gateway        string
+	Userid         string
+	Password       string
+	Throughput     int
+	GetSMSInterval int
 }
 
 // User config data

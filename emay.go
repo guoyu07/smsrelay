@@ -74,6 +74,7 @@ func (relay EmayRelay) processReceiveResult(body []byte) bool {
 	for _, msg := range v.Messages {
 		if msg.Content != "" {
 			incomingQueue <- &msg
+			dlog.Printf("Emay received message: %#v\n", msg)
 		}
 	}
 
