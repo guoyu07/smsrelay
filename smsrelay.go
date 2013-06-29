@@ -23,7 +23,8 @@ const MAX_RETRY = 3               // max retry for each sms
 const WAIT_TIME = 3 * time.Second // wait time between each retry
 
 // Flags
-var debug = flag.Bool("d", false, "turn on debug info")
+var verbose = flag.Bool("v", false, "verbose mode enables debug log")
+var dlogPath = flag.String("d", "smsrelay.debug.log", "path to debug log")
 var listen = flag.String("l", ":8180", "listen on [address]:port")
 var configPath = flag.String("c", "smsrelay.conf", "path to config file")
 var logPath = flag.String("o", "smsrelay.log", "path to log file")
@@ -312,9 +313,13 @@ func main() {
 	// Parse command-line flags
 	flag.Parse()
 
-	// Print debug info to stderr if -d flag is used
-	if *debug {
-		dlog = log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile)
+	// Log debug info if -v flag is used
+	if *verbose {
+		dlogFile, err := os.OpenFile(*dlogPath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		dlog = log.New(dlogFile, "", log.LstdFlags|log.Lshortfile)
 	} else {
 		dlog = log.New(ioutil.Discard, "", log.LstdFlags)
 	}
