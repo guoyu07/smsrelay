@@ -6,9 +6,15 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
+
+type EmayData struct {
+	Error   int    `xml:"error"`
+	Balance string `xml:"message"`
+}
 
 // Mesage received from Emay
 type EmayMessage struct {
@@ -79,4 +85,26 @@ func (relay EmayRelay) processReceiveResult(body []byte) bool {
 	}
 
 	return true
+}
+
+func (relay EmayRelay) checkBalance() string {
+	data := url.Values{}
+	data.Add("cdkey", relay.Userid)
+	data.Add("password", relay.Password)
+
+	resp, err := http.PostForm(config.Gateways[relay.Gateway].BalanceURL, data)
+
+	if err != nil {
+		dlog.Println(err)
+		return "failed to get balance"
+	} else {
+		defer resp.Body.Close()
+
+		body, _ := ioutil.ReadAll(resp.Body)
+		dlog.Printf("%s\n", body)
+
+		var edata EmayData
+		xml.Unmarshal(body, &edata)
+		return edata.Balance
+	}
 }

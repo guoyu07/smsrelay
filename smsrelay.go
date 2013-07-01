@@ -44,6 +44,7 @@ type SmsRelay interface {
 	receive() (*http.Response, error)
 	processSendResult([]byte) bool
 	processReceiveResult([]byte) bool
+	checkBalance() string
 }
 
 // Incoming messages need to implement UserMessage interface
@@ -309,6 +310,21 @@ func sendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// balance API Handler
+func balanceHandler(w http.ResponseWriter, r *http.Request) {
+	balances := make(map[string]string)
+	for name, _ := range config.Relays {
+		relay := GetRelay(name)
+		balances[name] = relay.checkBalance()
+	}
+	body, err := json.Marshal(balances)
+	if err != nil {
+		fmt.Fprintf(w, "Failed to marshal json response")
+	} else {
+		fmt.Fprintf(w, "%s", body)
+	}
+}
+
 func main() {
 	// Parse command-line flags
 	flag.Parse()
@@ -372,5 +388,6 @@ func main() {
 
 	// Bind handlers and start http server
 	http.HandleFunc("/send", sendHandler)
+	http.HandleFunc("/balance", balanceHandler)
 	http.ListenAndServe(*listen, nil)
 }

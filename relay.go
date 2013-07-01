@@ -37,3 +37,7 @@ func (relay Relay) processSendResult(body []byte) bool {
 func (relay Relay) processReceiveResult(body []byte) bool {
 	return false
 }
+
+func (relay Relay) checkBalance() string {
+	return ""
+}

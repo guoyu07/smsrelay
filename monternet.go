@@ -7,6 +7,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -103,4 +104,27 @@ func (relay MontRelay) processReceiveResult(body []byte) bool {
 	}
 
 	return true
+}
+
+func (relay MontRelay) checkBalance() string {
+	keys := []string{"userId", "password"}
+	values := []string{relay.Userid, relay.Password}
+
+	resp, err := http.Post(config.Gateways[relay.Gateway].BalanceURL,
+		"application/x-www-form-urlencoded",
+		strings.NewReader(Encode(keys, values)))
+
+	if err != nil {
+		dlog.Println(err)
+		return "failed to get balance"
+	} else {
+		defer resp.Body.Close()
+
+		body, _ := ioutil.ReadAll(resp.Body)
+		dlog.Printf("%s\n", body)
+
+		var balance string
+		xml.Unmarshal(body, &balance)
+		return balance
+	}
 }
