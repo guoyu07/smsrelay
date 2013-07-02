@@ -317,10 +317,13 @@ func balanceHandler(w http.ResponseWriter, r *http.Request) {
 		relay := GetRelay(name)
 		balances[name] = relay.checkBalance()
 	}
+
 	body, err := json.Marshal(balances)
 	if err != nil {
 		fmt.Fprintf(w, "Failed to marshal json response")
 	} else {
+		header := w.Header()
+		header.Set("Content-Type", "application/json")
 		fmt.Fprintf(w, "%s", body)
 	}
 }
